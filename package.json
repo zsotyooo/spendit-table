@@ -1,0 +1,10 @@
+{
+  "name": "@spendit/root",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      ".playbground"
+    ]
+  }
+}
