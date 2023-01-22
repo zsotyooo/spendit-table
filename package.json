@@ -1,10 +1,19 @@
 {
   "name": "@spendit/root",
   "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix"
+  },
   "workspaces": {
     "packages": [
       "packages/*",
       ".playbground"
     ]
+  },
+  "devDependencies": {
+    "turbo": "^1.7.0"
   }
 }
