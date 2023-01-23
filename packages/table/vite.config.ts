@@ -1,6 +1,6 @@
 import react from "@vitejs/plugin-react";
 import path from "node:path";
-import { defineConfig } from "vite";
+import { configDefaults, defineConfig } from "vitest/config";
 import dts from "vite-plugin-dts";
 
 export default defineConfig({
@@ -28,5 +28,10 @@ export default defineConfig({
       },
     },
     emptyOutDir: false,
+  },
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
+    exclude: [...configDefaults.exclude, '.storybook', 'storybook-static', '.turbo']
   },
 });
