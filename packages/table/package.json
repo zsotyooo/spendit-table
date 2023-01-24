@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",
+    "@faker-js/faker": "^7.6.0",
     "@spendit/eslint-config-custom": "*",
     "@spendit/typescript": "*",
     "@storybook/addon-actions": "^6.5.15",
