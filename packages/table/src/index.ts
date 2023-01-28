@@ -1,1 +1,4 @@
-export { default as Poc } from "./components/Poc/Poc";
+import SpenditTable from "./components/SpenditTable";
+export * from "./models";
+
+export { SpenditTable };
