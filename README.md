@@ -21,6 +21,11 @@ Start storybook and playground:
 > yarn dev
 ```
 
+Run tests:
+```
+> yarn test
+```
+
 ## SpenditTable Component
 
 It's a React component that renders a table with pagination.
