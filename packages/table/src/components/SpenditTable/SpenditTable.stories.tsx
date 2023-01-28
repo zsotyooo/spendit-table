@@ -118,3 +118,29 @@ export const CustomPageDistance: ComponentStoryObj<typeof SpenditTable> = {
     pagerPageDistance: 1,
   },
 };
+
+export const AsyncError: ComponentStoryObj<typeof SpenditTable> = {
+  args: {
+    schema,
+    data: new Promise((_resolve, reject) => {
+      setTimeout(() => reject(), 3000);
+    }),
+    currentPage,
+    pageSize,
+    selectable,
+  },
+};
+
+export const AsyncPageError: ComponentStoryObj<typeof SpenditTable> = {
+  args: {
+    schema,
+    currentPage,
+    pageSize,
+    selectable,
+    loadPage: () => {
+      return new Promise((_resolve, reject) => {
+        setTimeout(() => reject(), 3000);
+      });
+    },
+  },
+};

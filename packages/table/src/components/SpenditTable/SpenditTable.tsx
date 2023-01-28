@@ -17,6 +17,7 @@ import { Pagination, PaginationInfo } from "../Pagination";
 import { isPromise } from "../../helpers";
 import { useTableData } from "../../composables";
 import {
+  ErrorWrapper,
   PaginationInfoWrapper,
   PaginationPagerWrapper,
   PaginationWrapper,
@@ -61,6 +62,7 @@ const SpenditTable: FunctionComponent<
     pageSize,
     total,
     selectedDataIndexes,
+    error,
     setMode,
     setData,
     setAsyncData,
@@ -138,6 +140,7 @@ const SpenditTable: FunctionComponent<
 
   return (
     <GlobalStyle className={cx("spendit-table", className)} {...htmlProps}>
+      {error && <ErrorWrapper>{error}</ErrorWrapper>}
       <Table className={cx("spendit-table__table", { "is-busy": isBusy })}>
         <thead>
           <Tr>

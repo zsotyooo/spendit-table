@@ -11,10 +11,11 @@ export function useTableData() {
   const [mode, setMode] = useState<DataHandlingMode | null>(null);
   const [data, setRawData] = useState<Row[]>([]);
   const [pageData, setPageRawData] = useState<Row[]>([]);
-  const [pageSize, setPageSize] = useState<number>(0);
-  const [currentPage, setCurrentPage] = useState<number>(0);
-  const [total, setTotal] = useState<number>(0);
-  const [isBusy, setIsBusy] = useState<boolean>(false);
+  const [pageSize, setPageSize] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [isBusy, setIsBusy] = useState(false);
+  const [error, setError] = useState("");
 
   const [selectedDataIndexes, dispatchSelect] = useReducer(function (
     state: number[],
@@ -64,21 +65,31 @@ export function useTableData() {
     setTotal(data.length);
   }
 
-  function setAsyncData(asyncData: Promise<Row[]>) {
+  async function setAsyncData(asyncData: Promise<Row[]>) {
     setIsBusy(true);
-    asyncData.then((data) => {
+    try {
+      const data = await asyncData;
       setData(data);
       setIsBusy(false);
-    });
+    } catch (e) {
+      setIsBusy(false);
+      setError("Error while getting data!");
+      throw e;
+    }
   }
 
-  function setAsyncPage(asyncPageData: Promise<PageData>) {
+  async function setAsyncPage(asyncPageData: Promise<PageData>) {
     setIsBusy(true);
-    asyncPageData.then(({ data, total }) => {
+    try {
+      const { data, total } = await asyncPageData;
       setRawData(data);
       setTotal(total);
       setIsBusy(false);
-    });
+    } catch (e) {
+      setIsBusy(false);
+      setError("Error while getting page data!");
+      throw e;
+    }
   }
 
   function resetSelection() {
@@ -120,6 +131,7 @@ export function useTableData() {
     currentPage,
     total,
     isBusy,
+    error,
     setMode,
     setData,
     setAsyncData,
@@ -135,5 +147,6 @@ export function useTableData() {
     isAllSelected,
     isSelected,
     getSelectedData,
+    setError,
   };
 }

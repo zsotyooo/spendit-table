@@ -246,7 +246,7 @@ describe("SpenditTable", () => {
     });
   });
 
-  describe("selextion", () => {
+  describe("selection", () => {
     let onSelectionChange: Mock;
     beforeEach(() => {
       onSelectionChange = vi.fn();

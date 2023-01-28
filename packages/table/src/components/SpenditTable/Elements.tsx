@@ -41,3 +41,7 @@ export const PaginationPagerWrapper = styled.div`
   align-items: center;
   justify-content: flex-end;
 `;
+
+export const ErrorWrapper = styled.div`
+  color: red;
+`;
