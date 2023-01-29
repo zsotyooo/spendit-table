@@ -12,17 +12,17 @@ Install:
 ```
 
 Build:
-```
+```bash
 > yarn build
 ```
 
 Start storybook and playground:
-```
+```bash
 > yarn dev
 ```
 
 Run tests:
-```
+```bash
 > yarn test
 ```
 
