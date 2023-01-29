@@ -1,39 +1,38 @@
 import { beforeEach, describe, it, expect, vi, Mock } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import SpenditTable from "./SpenditTable";
-import { PageLoader, Row, Schema } from "../../models";
+import { PageLoader, Schema } from "../../models";
 
+type Data = {
+  id: number;
+  something: string;
+};
 describe("SpenditTable", () => {
-  let schema: Schema;
-  let data: Row[];
-  let loadData: Promise<Row[]>;
-  let loadPage: PageLoader;
+  let schema: Schema<Data>;
+  let data: Data[];
+  let loadData: Promise<Data[]>;
+  let loadPage: PageLoader<Data>;
 
   beforeEach(() => {
-    schema = [
-      {
-        id: "ID",
+    schema = {
+      id: {
         label: "id",
-        render(value: number) {
-          return <span>{value}</span>;
-        },
       },
-      {
-        id: "SOMETHING",
+      something: {
         label: "Something",
       },
-    ];
+    };
 
     data = [
-      [1, "test-data-1"],
-      [2, "test-data-2"],
-      [3, "test-data-3"],
-      [4, "test-data-4"],
-      [5, "test-data-5"],
-      [6, "test-data-6"],
-      [7, "test-data-7"],
-      [8, "test-data-8"],
-      [9, "test-data-9"],
+      { id: 1, something: "test-data-1" },
+      { id: 2, something: "test-data-2" },
+      { id: 3, something: "test-data-3" },
+      { id: 4, something: "test-data-4" },
+      { id: 5, something: "test-data-5" },
+      { id: 6, something: "test-data-6" },
+      { id: 7, something: "test-data-7" },
+      { id: 8, something: "test-data-8" },
+      { id: 9, something: "test-data-9" },
     ];
   });
 
@@ -41,7 +40,7 @@ describe("SpenditTable", () => {
     describe("default render values", () => {
       beforeEach(() => {
         render(
-          <SpenditTable
+          <SpenditTable<Data>
             schema={schema}
             data={data}
             pageSize={2}
@@ -51,8 +50,8 @@ describe("SpenditTable", () => {
       });
 
       it("should render the headings", async () => {
-        schema.forEach((definition) => {
-          expect(screen.getByText(definition.label)).toBeInTheDocument();
+        Object.keys(schema).forEach((id) => {
+          expect(screen.getByText(schema[id].label)).toBeInTheDocument();
         });
       });
 
@@ -105,23 +104,19 @@ describe("SpenditTable", () => {
     describe("custom render values", () => {
       beforeEach(() => {
         render(
-          <SpenditTable
-            schema={[
-              {
-                id: "ID",
+          <SpenditTable<Data>
+            schema={{
+              ...schema,
+              id: {
                 label: "id",
                 renderHead(value: string) {
                   return <span>{value.toUpperCase()}</span>;
                 },
-                render(value: number) {
+                renderCell(value: number) {
                   return <span>ID:{value}</span>;
                 },
               },
-              {
-                id: "SOMETHING",
-                label: "Something",
-              },
-            ]}
+            }}
             data={data}
             pageSize={2}
             currentPage={1}
@@ -164,7 +159,7 @@ describe("SpenditTable", () => {
     beforeEach(() => {
       loadData = Promise.resolve(data);
       render(
-        <SpenditTable
+        <SpenditTable<Data>
           schema={schema}
           data={loadData}
           pageSize={2}
@@ -209,7 +204,7 @@ describe("SpenditTable", () => {
           });
         });
       render(
-        <SpenditTable
+        <SpenditTable<Data>
           schema={schema}
           pageSize={2}
           currentPage={0}

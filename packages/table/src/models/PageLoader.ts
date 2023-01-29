@@ -1,10 +1,8 @@
-import { Row } from "./Row";
-
-export type PageData = {
+export type PageData<T> = {
   total: number;
-  data: Row[];
+  data: T[];
 };
 
-export interface PageLoader {
-  (page: number, pageSize: number): Promise<PageData>;
+export interface PageLoader<T> {
+  (page: number, pageSize: number): Promise<PageData<T>>;
 }

@@ -35,60 +35,65 @@ It's a React component that renders a table with pagination.
 Component:
 
 ```js
-import { SpenditTable, Row } from "@spendit/table";
-import "./App.css";
+import { SpenditTable, Schema } from "@spendit/table";
 import { useCallback, useMemo, useState } from "react";
 
 function App() {
-  const [selectedRows, setSelectedRows] = useState<Row[]>([]);
+  type Data = {
+    id: number;
+    firstName: string;
+    lastName: string;
+    age: number;
+    country: string;
+  };
 
-  const schema = useMemo(
-    () => [
-      {
-        id: "id",
-        label: "ID",
-      },
-      {
-        id: "name",
-        label: "Name",
-      },
-      {
-        id: "Age",
+  const [selectedRows, setSelectedRows] = useState<Data[]>([]);
+
+  const schema = useMemo<Schema<Data>>(
+    () => ({
+      id: { label: "ID" },
+      firstName: { label: "First Name" },
+      lastName: { label: "Last Name" },
+      age: {
         label: "Age",
         renderHead(value: string) {
           return <div style={{ textAlign: "right" }}>{value}</div>;
         },
-        render(value: number) {
+        renderCell(value: number) {
           return <div style={{ textAlign: "right" }}>{value}</div>;
         },
       },
-    ],
+      country: { label: "Country" },
+    }),
     []
   );
+
   const total = useMemo(() => 295, []);
   const pageSize = useMemo(() => 10, []);
   const currentPage = useMemo(() => 0, []);
   const selectable = useMemo(() => true, []);
 
-  const data = useMemo<Row[]>(
+  const data = useMemo<Data[]>(
     () =>
       // Creates 295 rows
-      Array.from(new Array(total)).map((_, idx) => [
-        idx + 1,
-        `Name ${idx + 1}`,
-        idx + 10,
-      ]),
+      Array.from(new Array(total)).map((_, idx) => ({
+        id: idx + 1,
+        firstName: `First name ${idx +1}`,
+        lastName: `Last name ${idx +1}`,
+        age: idx + 10,
+        country: `Country ${idx +1}`,
+      })),
     []
   );
 
-  const onSelectionChange = useCallback((rows: Row[]) => {
+  const onSelectionChange = useCallback((rows: Data[]) => {
     setSelectedRows(rows);
   }, []);
   return (
     <div className="App">
       <h1>Spendit table</h1>
       <div>
-        <SpenditTable
+        <SpenditTable<Data>
           schema={schema}
           data={data}
           currentPage={currentPage}
@@ -100,7 +105,7 @@ function App() {
       <div>
         <strong>Selected items: </strong>
         <br />
-        <span>{selectedRows.map((row) => row[1]).join(", ")}</span>
+        <span>{selectedRows.map((row) => row.firstName).join(", ")}</span>
       </div>
     </div>
   );
@@ -136,13 +141,15 @@ Change styles:
 
 ### Properties
 
+The component uses a generic type `T` representing the shape of the data (see the example above).
+
 - **`{Schema} schema` - The schema of the table.** (see in the example above)
-- **`{Row[] | Promise<Row[]>} data` - The data or a promise that resolves the data to display in the table. When provided, do not provide the `pageLoader` property.** E.g.: `[[1, 'a', 'c'], [2, 'e', 'f']]`
-- `{(page: number, pageSize: number): Promise<{rows: Row[], total: number}>} loadPage` - A function that takes a page number and page size and returns a promise that resolves to an array of rows and a total. When provided, do not provide the `data` property.
+- **`{T[] | Promise<T[]>} data` - The data or a promise that resolves the data to display in the table. When provided, do not provide the `pageLoader` property.** E.g.: `[[1, 'a', 'c'], [2, 'e', 'f']]`
+- `{(page: number, pageSize: number): Promise<{rows: T[], total: number}>} loadPage` - A function that takes a page number and page size and returns a promise that resolves to an array of rows and a total. When provided, do not provide the `data` property.
 - **`{number} currentPage` - The current page number.**
 - **`{number} pageSize` - The number of rows to display per page.**
 - `{boolean} selectable` - Whether the rows should be selectable or not.
-- `{(rows: Row[]): void} onSelectionChange` - It calls this callback when the user selects or deselects a row.
+- `{(rows: T[]): void} onSelectionChange` - It calls this callback when the user selects or deselects a row.
 - `{string} infoText` - A string is displayed as the pagination info. It defaults to "Showing %from% to %to% of %total%".
 - `{number} pagerPageDistance` - The number of pages shown after and before the actual page. The difference is added to the opposite side if the distance goes out of range.
 

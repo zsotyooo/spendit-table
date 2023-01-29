@@ -1,21 +1,12 @@
-import {
-  FunctionComponent,
-  HTMLAttributes,
-  useCallback,
-  useEffect,
-} from "react";
+import { useCallback, useEffect } from "react";
 import cx from "classnames";
-import {
-  CellRenderer,
-  Row,
-  Schema,
-  PageLoader,
-  HeadCellRenderer,
-  DataHandlingMode,
-} from "../../models";
-import { Pagination, PaginationInfo } from "../Pagination";
+import { DataHandlingMode } from "../../models";
 import { isPromise } from "../../helpers";
 import { useTableData } from "../../composables";
+import { Pagination, PaginationInfo } from "../Pagination";
+import GlobalStyle from "../GlobalStyle";
+import { AllCheckbox, Checkbox } from "../Selection";
+import type { Props } from "./Props";
 import {
   ErrorWrapper,
   PaginationInfoWrapper,
@@ -26,23 +17,8 @@ import {
   Th,
   Tr,
 } from "./Elements";
-import GlobalStyle from "../GlobalStyle";
-import { AllCheckbox, Checkbox } from "../Selection";
 
-type CommonProps = HTMLAttributes<HTMLDivElement> & {
-  schema: Schema;
-  currentPage: number;
-  pageSize: number;
-  selectable?: boolean;
-  onSelectionChange?: (rows: Row[]) => void;
-  infoText?: string;
-  pagerPageDistance?: number;
-};
-
-const SpenditTable: FunctionComponent<
-  | (CommonProps & { data: Row[] | Promise<Row[]>; loadPage?: undefined })
-  | (CommonProps & { data?: undefined; loadPage: PageLoader })
-> = ({
+function SpenditTable<T extends Record<string, unknown>>({
   schema,
   data: dataProp,
   loadPage,
@@ -54,7 +30,7 @@ const SpenditTable: FunctionComponent<
   className,
   infoText,
   ...htmlProps
-}) => {
+}: Props<T>) {
   const {
     pageData,
     isBusy,
@@ -76,7 +52,7 @@ const SpenditTable: FunctionComponent<
     isAllSelected,
     isSelected,
     getSelectedData,
-  } = useTableData();
+  } = useTableData<T>();
 
   useEffect(() => {
     if (loadPage) {
@@ -131,13 +107,6 @@ const SpenditTable: FunctionComponent<
     []
   );
 
-  const getColumnRendererByIndex = (index: number): CellRenderer =>
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    schema[index].render ?? ((value: any) => <>{value}</>);
-
-  const getColumnHeadRendererByIndex = (index: number): HeadCellRenderer =>
-    schema[index].renderHead ?? ((value: string) => <>{value}</>);
-
   return (
     <GlobalStyle className={cx("spendit-table", className)} {...htmlProps}>
       {error && <ErrorWrapper>{error}</ErrorWrapper>}
@@ -161,46 +130,57 @@ const SpenditTable: FunctionComponent<
                 />
               </Th>
             )}
-            {schema.map(({ id, label }, columnIndex) => (
-              <Th
-                key={id}
-                className={cx("spendit-table__th", `spendit-table__th--${id}`)}
-              >
-                {getColumnHeadRendererByIndex(columnIndex)(label)}
-              </Th>
-            ))}
+            {Object.keys(schema)
+              .map((columnId) => ({ columnId, definition: schema[columnId] }))
+              .map(({ columnId, definition: { label, renderHead } }) => (
+                <Th
+                  key={columnId}
+                  className={cx(
+                    "spendit-table__th",
+                    `spendit-table__th--${columnId}`
+                  )}
+                >
+                  {renderHead ? renderHead(label) : label}
+                </Th>
+              ))}
           </Tr>
         </thead>
         <tbody>
-          {pageData
-            .map((row, rowIndex) => ({ row, id: rowIndex }))
-            .map(({ row, id }) => (
-              <Tr key={id}>
-                {selectable && (
-                  <Td>
-                    <Checkbox
-                      name={`row[${currentPage}][${id}]`}
-                      title={`Select row #${id + 1}`}
-                      checked={isSelected(id)}
-                      dataIndex={id}
-                      onSelectionChange={handleToggleSelectOne}
-                      isBusy={isBusy}
-                    />
-                  </Td>
-                )}
-                {row.map((value, columnIndex) => (
+          {pageData.map((row, rowIndex) => (
+            <Tr key={rowIndex}>
+              {selectable && (
+                <Td>
+                  <Checkbox
+                    name={`row[${currentPage}][${rowIndex}]`}
+                    title={`Select row #${rowIndex + 1}`}
+                    checked={isSelected(rowIndex)}
+                    dataIndex={rowIndex}
+                    onSelectionChange={handleToggleSelectOne}
+                    isBusy={isBusy}
+                  />
+                </Td>
+              )}
+              {Object.keys(row)
+                .map((dataId) => ({
+                  dataId,
+                  definition: schema[dataId],
+                }))
+                .map(({ dataId, definition: { renderCell } }) => (
                   <Td
-                    key={`${currentPage}__${schema[columnIndex].id}`}
+                    key={`${currentPage}__${dataId}`}
                     className={cx(
                       "spendit-table__td",
-                      `spendit-table__td--${schema[columnIndex].id}`
+                      `spendit-table__td--${dataId}`
                     )}
                   >
-                    {getColumnRendererByIndex(columnIndex)(value)}
+                    {renderCell
+                      ? // Type assignment is needed, because TS is not smart enogh to figure it out
+                        renderCell(row[dataId] as T[keyof T])
+                      : (row[dataId] as string)}
                   </Td>
                 ))}
-              </Tr>
-            ))}
+            </Tr>
+          ))}
         </tbody>
       </Table>
       <PaginationWrapper className="spendit-table__pagination">
@@ -226,6 +206,6 @@ const SpenditTable: FunctionComponent<
       </PaginationWrapper>
     </GlobalStyle>
   );
-};
+}
 
 export default SpenditTable;

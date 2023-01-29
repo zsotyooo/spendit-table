@@ -2,15 +2,14 @@ import { useEffect, useReducer, useState } from "react";
 import {
   DataHandlingMode,
   PageData,
-  Row,
   SelectionAction,
   SelectionActionType,
 } from "../models";
 
-export function useTableData() {
+export function useTableData<T>() {
   const [mode, setMode] = useState<DataHandlingMode | null>(null);
-  const [data, setRawData] = useState<Row[]>([]);
-  const [pageData, setPageRawData] = useState<Row[]>([]);
+  const [data, setRawData] = useState<T[]>([]);
+  const [pageData, setPageRawData] = useState<T[]>([]);
   const [pageSize, setPageSize] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [total, setTotal] = useState(0);
@@ -55,17 +54,17 @@ export function useTableData() {
     }
   }, [data, currentPage, pageSize]);
 
-  function setPageData(data: Row[]) {
+  function setPageData(data: T[]) {
     resetSelection();
     setPageRawData(data);
   }
 
-  function setData(data: Row[]) {
+  function setData(data: T[]) {
     setRawData(data);
     setTotal(data.length);
   }
 
-  async function setAsyncData(asyncData: Promise<Row[]>) {
+  async function setAsyncData(asyncData: Promise<T[]>) {
     setIsBusy(true);
     try {
       const data = await asyncData;
@@ -78,7 +77,7 @@ export function useTableData() {
     }
   }
 
-  async function setAsyncPage(asyncPageData: Promise<PageData>) {
+  async function setAsyncPage(asyncPageData: Promise<PageData<T>>) {
     setIsBusy(true);
     try {
       const { data, total } = await asyncPageData;

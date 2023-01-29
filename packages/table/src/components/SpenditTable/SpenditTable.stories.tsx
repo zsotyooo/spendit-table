@@ -1,8 +1,16 @@
 import { ComponentMeta, ComponentStoryObj } from "@storybook/react";
 import { faker } from "@faker-js/faker";
-import type { Row, Schema } from "../../models";
+import type { Schema } from "../../models";
 import SpenditTable from "./SpenditTable";
 import { action } from "@storybook/addon-actions";
+
+type Data = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  age: number;
+  country: string;
+};
 
 const meta: ComponentMeta<typeof SpenditTable> = {
   title: "Design System/SpenditTable",
@@ -13,49 +21,37 @@ const meta: ComponentMeta<typeof SpenditTable> = {
 };
 export default meta;
 
-const schema: Schema = [
-  {
-    id: "id",
-    label: "ID",
-  },
-  {
-    id: "firstName",
-    label: "First name",
-  },
-  {
-    id: "lastName",
-    label: "Last name",
-  },
-  {
-    id: "Age",
+const schema: Schema<Data> = {
+  id: { label: "ID" },
+  firstName: { label: "First Name" },
+  lastName: { label: "Last Name" },
+  age: {
     label: "Age",
     renderHead(value: string) {
+      // eslint-disable-next-line prettier/prettier
       return <div style={{ textAlign: "right" }}>{value}</div>;
     },
-    render(value: number) {
+    renderCell(value: number) {
       return <div style={{ textAlign: "right" }}>{value}</div>;
     },
   },
-  {
-    id: "Country",
-    label: "Country",
-  },
-];
+  country: { label: "Country" },
+};
 
 const total = 75;
 const pageSize = 10;
 const currentPage = 0;
 const selectable = true;
 
-const data: Row[] = Array.from(new Array(total)).map((_, idx) => [
-  idx + 1,
-  faker.name.firstName(),
-  faker.name.lastName(),
-  parseInt(faker.random.numeric(2), 10),
-  faker.address.country(),
-]);
+const data = Array.from(new Array(total)).map((_, idx) => ({
+  id: idx + 1,
+  firstName: faker.name.firstName(),
+  lastName: faker.name.lastName(),
+  age: parseInt(faker.random.numeric(2), 10),
+  country: faker.address.country(),
+}));
 
-export const Default: ComponentStoryObj<typeof SpenditTable> = {
+export const Default: ComponentStoryObj<typeof SpenditTable<Data>> = {
   args: {
     schema,
     data,
@@ -65,7 +61,7 @@ export const Default: ComponentStoryObj<typeof SpenditTable> = {
   },
 };
 
-export const NonSelectable: ComponentStoryObj<typeof SpenditTable> = {
+export const NonSelectable: ComponentStoryObj<typeof SpenditTable<Data>> = {
   args: {
     schema,
     data,
@@ -75,7 +71,7 @@ export const NonSelectable: ComponentStoryObj<typeof SpenditTable> = {
   },
 };
 
-export const Async: ComponentStoryObj<typeof SpenditTable> = {
+export const Async: ComponentStoryObj<typeof SpenditTable<Data>> = {
   args: {
     schema,
     data: new Promise((resolve) => {
@@ -87,7 +83,7 @@ export const Async: ComponentStoryObj<typeof SpenditTable> = {
   },
 };
 
-export const AsyncPage: ComponentStoryObj<typeof SpenditTable> = {
+export const AsyncPage: ComponentStoryObj<typeof SpenditTable<Data>> = {
   args: {
     schema,
     currentPage,
@@ -108,7 +104,7 @@ export const AsyncPage: ComponentStoryObj<typeof SpenditTable> = {
   },
 };
 
-export const CustomPageDistance: ComponentStoryObj<typeof SpenditTable> = {
+export const CustomPageDistance: ComponentStoryObj<typeof SpenditTable<Data>> = {
   args: {
     schema,
     data,
@@ -119,7 +115,7 @@ export const CustomPageDistance: ComponentStoryObj<typeof SpenditTable> = {
   },
 };
 
-export const AsyncError: ComponentStoryObj<typeof SpenditTable> = {
+export const AsyncError: ComponentStoryObj<typeof SpenditTable<Data>> = {
   args: {
     schema,
     data: new Promise((_resolve, reject) => {
@@ -131,7 +127,7 @@ export const AsyncError: ComponentStoryObj<typeof SpenditTable> = {
   },
 };
 
-export const AsyncPageError: ComponentStoryObj<typeof SpenditTable> = {
+export const AsyncPageError: ComponentStoryObj<typeof SpenditTable<Data>> = {
   args: {
     schema,
     currentPage,
